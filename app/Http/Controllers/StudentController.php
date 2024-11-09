@@ -58,11 +58,11 @@ class StudentController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return back()->withErrors($validator)->withInput();
+            return response()->json(['success' => false, 'message' => 'Validation failed', 'errors' => $validator->errors()]);
         }
 
         $validated = $validator->validated();
-        Log::info("Validated Values : " . json_encode($validated));
+        // Log::info("Validated Values : " . json_encode($validated));
 
         try {
             // Check if image exists in request
@@ -95,7 +95,7 @@ class StudentController extends Controller
 
             // Create student record
             $student = Student::create($studentData);
-            Log::info("Student created: " . json_encode($student));
+            // Log::info("Student created: " . json_encode($student));
             // Create pickup persons records
             foreach ($validated['pickupPersons'] as $person) {
                 $pickupPerson = $student->pickupPersons()->create([
@@ -103,10 +103,10 @@ class StudentController extends Controller
                     'relation' => $person['relation'],
                     'contact_number' => $person['contactNumber']
                 ]);
-                Log::info("Pickup person created: " . json_encode($pickupPerson));
+                // Log::info("Pickup person created: " . json_encode($pickupPerson));
             }
 
-            return redirect()->route('students')->with('success', 'Student added successfully.');
+            return response()->json(['success' => true, 'message' => 'Student added successfully']);
 
         } catch (\Exception $e) {
             return back()->withErrors([
@@ -134,7 +134,7 @@ class StudentController extends Controller
     public function edit($id)
     {
         $student = Student::where('id', $id)->with('pickupPersons')->first();
-        Log::info("Student: " . json_encode($student));
+        // Log::info("Student: " . json_encode($student));
         return Inertia::render('Student/EditStudent', [
             'student' => $student
         ]);
@@ -142,7 +142,7 @@ class StudentController extends Controller
 
     public function update(Request $request, $id)
     {
-        Log::info("Request: " . json_encode($request->all()));
+        // Log::info("Request: " . json_encode($request->all()));
 
         $student = Student::findOrFail($id);
 
@@ -172,17 +172,18 @@ class StudentController extends Controller
             'photo' => 'nullable|sometimes|image|mimes:jpg,jpeg,png|max:1024|dimensions:min_width=100,min_height=100',
             'pickup_persons' => 'required|array|min:1|max:6',
             'pickup_persons.*.id' => 'required|integer',
+            'pickup_persons.*.remove' => 'sometimes|boolean',
             'pickup_persons.*.name' => 'required|string|max:255',
             'pickup_persons.*.relation' => 'required|string|in:Father,Mother,Brother,Sister,Grandfather,Grandmother',
             'pickup_persons.*.contact_number' => 'required|string|size:10'
         ]);
         if ($validator->fails()) {
-            Log::info("Validation failed: " . json_encode($validator->errors()));
+            // Log::info("Validation failed: " . json_encode($validator->errors()));
             return response()->json(['success' => false, 'message' => 'Validation failed', 'errors' => $validator->errors()]);
         }
 
         $validated = $validator->validated();
-        Log::info("Validated Values : " . json_encode($validated));
+        // Log::info("Validated Values : " . json_encode($validated));
 
         // check for image value
         if ($request->hasFile('photo')) {
@@ -217,12 +218,19 @@ class StudentController extends Controller
         
         // update the pickup persons records
         foreach ($validated['pickup_persons'] as $person) {
-            $pickupPerson = $student->pickupPersons()->where('id', $person['id'])->update([
-                'name' => $person['name'],
-                'relation' => $person['relation'],
-                'contact_number' => $person['contact_number']
-            ]);
-            Log::info("Pickup person updated: " . json_encode($pickupPerson));
+            if (isset($person['remove']) && $person['remove'] === true) {
+                // Delete the pickup person record
+                $student->pickupPersons()->where('id', $person['id'])->delete();
+                // Log::info("Pickup person deleted: " . $person['id']);
+            } else {
+                // Update the pickup person record
+                $pickupPerson = $student->pickupPersons()->where('id', $person['id'])->update([
+                    'name' => $person['name'],
+                    'relation' => $person['relation'],
+                    'contact_number' => $person['contact_number']
+                ]);
+                // Log::info("Pickup person updated: " . json_encode($pickupPerson));
+            }
         }
 
         return response()->json(['success' => true, 'message' => 'Student updated successfully']);

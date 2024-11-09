@@ -145,7 +145,7 @@ export default function AddStudent() {
                 }
             });
 
-            if (response.status === 200) {
+            if (response.data.success) {
                 // Show success popup with SweetAlert2
                 Swal.fire({
                     title: 'Thank You!',
@@ -177,9 +177,6 @@ export default function AddStudent() {
                 // Reset form
                 reset();
                 setPreviewUrl(null);
-                
-                // Show success toast
-                toast.success('Student registered successfully!');
                 
                 // Redirect after 5 seconds
                 setTimeout(() => {

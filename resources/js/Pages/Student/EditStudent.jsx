@@ -25,7 +25,8 @@ export default function EditStudent({ student }) {
         pickupPersons: student.pickup_persons || [{
             name: '',
             relation: '',
-            contact_number: ''
+            contact_number: '',
+            removed: false
         }]
     });
 
@@ -132,8 +133,14 @@ export default function EditStudent({ student }) {
 
     const removePickupPerson = (index) => {
         if (data.pickupPersons.length > 1) {
-            const updatedPickupPersons = data.pickupPersons.filter((_, i) => i !== index);
+            const updatedPickupPersons = data.pickupPersons.map((person, i) => {
+                if (i === index) {
+                    return { ...person, remove: true };
+                }
+                return person;
+            });
             setData('pickupPersons', updatedPickupPersons);
+            console.log('updatedPickupPersons after removing: ', updatedPickupPersons);
         }
     };
 
@@ -436,7 +443,7 @@ export default function EditStudent({ student }) {
                                         )}
                                     </div>
 
-                                    {data.pickupPersons.map((person, index) => (
+                                    {data.pickupPersons.filter(person => !person.remove).map((person, index) => (
                                         <div key={index} className="rounded-lg border border-gray-200 p-4">
                                             <div className="grid grid-cols-3 gap-4">
                                                 <div>
