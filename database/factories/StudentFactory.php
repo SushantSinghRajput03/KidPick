@@ -19,7 +19,7 @@ class StudentFactory extends Factory
         return [
             'child_name' => fake()->name(),
             'date_of_birth' => fake()->date(),
-            'class' => fake()->randomElement(['1', '2', '3', '4', '5', '6', '7', '8', '9', '10']),
+            'class' => fake()->randomElement(['Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10']),
             'address' => fake()->address(),
             'city' => fake()->city(),
             'state' => fake()->state(),
