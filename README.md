@@ -20,9 +20,12 @@ KidPick is a Laravel-based application designed for kindergartens to manage the 
   - Displays a summary of the registered data upon successful registration, along with a thank-you message.
 
 
-## Technologies Used
+## Technologies Used / Requirement
 
 - Laravel 11.9
+- React 18.2.0
+- Node 20.12.1
+- npm 10.5.0
 - PHP 8.2
 - SQLite
 
@@ -68,17 +71,20 @@ Follow these steps to set up the project locally:
    npm install
    ```
 
-8. **Compile Assets**
+8. **Start the Development Server**
    ```bash
-   npm run dev
-   ```
-   For development, or `npm run build` for production
-
-9. **Start the Development Server**
-   ```bash
-   php artisan serve
-   # Or to run both PHP server and npm watch:
+   # Option 1: Run PHP server and npm watch together (recommended)
    composer run dev
+   
+   # Option 2: Run PHP server only
+   php artisan serve
+   ```
+   If using Option 1 (composer run dev), it will automatically handle asset compilation.
+   If using Option 2, you'll need to compile assets separately:
+   ```bash
+   npm run dev    # For development
+   # or
+   npm run build  # For production
    ```
    Access the application at `http://localhost:8000`
 
